@@ -1,8 +1,14 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("Home page", () => {
+test.describe("Home page with no auth", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("http://practicesoftwaretesting.com/");
+  });
+
+  test("visual test", async ({ page }) => {
+    await expect(page).toHaveScreenshot("home-page.png", {
+      mask: [page.getByTitle("Practice Software Testing - Toolshop")],
+    });
   });
 
   test("check sign in", async ({ page }) => {
@@ -26,5 +32,23 @@ test.describe("Home page", () => {
     await page.getByTestId("search-submit").click();
     await expect(productGrid.getByRole("link")).toHaveCount(1);
     await expect(productGrid.getByAltText("Thor Hammer")).toBeVisible();
+  });
+});
+
+test.describe("Home page customer 01 with auth", () => {
+  test.use({ storageState: ".auth/customer01.json" });
+  test.beforeEach(async ({ page }) => {
+    await page.goto("http://practicesoftwaretesting.com/");
+  });
+
+  test("check sign in", async ({ page }) => {
+    await expect(page.getByTestId("nav-sign-in")).not.toBeVisible();
+  });
+
+  test("visual test authorized", async ({ page }) => {
+    await page.waitForLoadState("networkidle");
+    await expect(page).toHaveScreenshot("home-page-authorized.png", {
+      mask: [page.getByTitle("Practice Software Testing - Toolshop")],
+    });
   });
 });
